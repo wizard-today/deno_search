@@ -31,7 +31,7 @@ const search = async (input: SearchInput): Promise<SearchOutput[]> => {
 
 export const main = async (input: unknown): Promise<Output> => (
   Promise.all(
-    validateInput(input).map(async input => {
+    validateInput(input).pages.map(async input => {
       try {
         return (
           typeof input === 'string'
