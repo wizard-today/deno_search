@@ -23,19 +23,6 @@ const search = async (input: SearchInput): Promise<SearchOutput> => {
   const lang = encodeURIComponent(input.lang ?? 'en')
   const searchHtml = await loadHtml(`https://www.google.com/search?q=${q}&gl=${location}&hl=${lang}`)
   const output = parseGoogleSearchLinks(searchHtml)
-
-  const freeTokens = freeTokensLimit(JSON.stringify(output))
-
-  if (freeTokens) {
-    for (let i = 0; i < 10; i++) {
-      const content = await browse(output[i])
-      if (tokens(content) >= freeTokens) {
-        output[i].content = cutToAcceptableLimits(content, freeTokens - 10)
-        break
-      }
-    }
-  }
-
   return output
 }
 
