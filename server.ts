@@ -1,4 +1,5 @@
 import { main } from './main.ts'
+import { cutToAcceptableLimits } from './gpt.ts'
 
 const port = 8080
 
@@ -20,14 +21,24 @@ const handler = async (request: Request): Promise<Response> => {
     // }
     if (request.method === 'GET') {
       const url = new URL(request.url)
-      const params = url.searchParams
-      const inputObj = Object.fromEntries(params)
+      const input = Object.fromEntries(url.searchParams)
 
-      const result = await main(url.pathname, inputObj)
-      const output = JSON.stringify(result)
+      const result = await main(url.pathname, input)
+
+      const output = (
+        typeof result === 'string'
+          ? cutToAcceptableLimits(result)
+          : JSON.stringify(result)
+      )
 
       return new Response(output, {
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+          'Content-Type': (
+            typeof result === 'string'
+              ? 'text/plain'
+              : 'application/json'
+          )
+        }
       })
     }
   } catch (error) {

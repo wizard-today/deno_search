@@ -4,11 +4,6 @@ export type BrowseInput = {
   link: string
 }
 
-export type BrowseOutput = {
-  title: string
-  content: string
-}
-
 // /search
 
 export type SearchInput = {
@@ -23,6 +18,7 @@ export type SearchPage = {
   title: string
   link: string
   snippet: string
+  content?: string
 }
 
 export type SearchOutput = SearchPage[]
