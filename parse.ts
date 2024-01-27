@@ -4,22 +4,26 @@ import { SearchPage } from './types.ts'
 export const parseGoogleSearchLinks = (html: string): SearchPage[] => {
   const $ = cheerio.load(html)
 
-  const pages: Partial<SearchPage>[] = []
-
+  const titles: string[] = []
   $('.g .yuRUbf h3').each((i, el) => {
-    pages[i] = {}
-    pages[i].title = $(el).text()
+    titles.push($(el).text())
   })
 
+  const links: string[] = []
   $('.yuRUbf a').each((i, el) => {
-    pages[i].link = $(el).attr('href')
+    links.push($(el).attr('href'))
   })
 
+  const snippets: string[] = []
   $('.g .VwiC3b ').each((i, el) => {
-    pages[i].snippet = $(el).text()
+    snippets.push($(el).text())
   })
 
-  return pages as SearchPage[]
+  return titles.map<SearchPage>((title, i) => ({
+    title,
+    link: links[i],
+    snippet: snippets[i],
+  }))
 }
 
 export const parsePageContent = (html: string): string => {
