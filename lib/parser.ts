@@ -17,7 +17,7 @@ export class Parser {
 
   replace(selector, map: (element: Element) => string) {
     this.html(selector).each((_, el) => {
-      this.html(el).replace(map(this.html(el)))
+      this.html(el).replaceWith(map(this.html(el)))
     })
   }
 
