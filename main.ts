@@ -1,5 +1,5 @@
-import { parseContent, parseLinks } from './parse.ts'
-import { validateInput, SearchInput, Output, SearchOutput } from './types.ts'
+import { parsePageContent, parseGoogleSearchLinks } from './parse.ts'
+import { Input, Output, Page } from './types.ts'
 
 const loadHtml = async (link: string): Promise<string> => {
   const response = await fetch(link, {
@@ -10,37 +10,30 @@ const loadHtml = async (link: string): Promise<string> => {
   return response.text()
 }
 
-const search = async (input: SearchInput): Promise<SearchOutput[]> => {
+const search = async (input: Input): Promise<Output> => {
   const q = encodeURIComponent(input.search)
   const location = encodeURIComponent(input.location ?? 'us')
   const lang = encodeURIComponent(input.lang ?? 'en')
   const searchHtml = await loadHtml(`https://www.google.com/search?q=${q}&gl=${location}&hl=${lang}`)
-  const links = parseLinks(searchHtml)
+  const links = parseGoogleSearchLinks(searchHtml)
   return Promise.all(
-    links.slice(0, input.pages).map<Promise<SearchOutput>>(
+    links.map<Promise<Page>>( //.slice(0, input.pages)
       async link => {
         const html = await loadHtml(link)
+        const page = parsePageContent(html)
         return {
           link,
-          html: parseContent(html),
+          ...page
         }
       }
     )
   )
 }
 
-export const main = async (input: unknown): Promise<Output> => (
-  Promise.all(
-    validateInput(input).pages.map(async input => {
-      try {
-        return (
-          typeof input === 'string'
-            ? loadHtml(input)
-            : search(input)
-        )
-      } catch {
-        return null
-      }
-    })
-  )
-)
+export const main = async (request: Record<string, string>) => {
+  return search({
+    search: request['search'],
+    in: request['in'] as 'google',
+    pages: Number(request['pages']) || undefined
+  })
+}

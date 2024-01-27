@@ -4,11 +4,18 @@ const port = 8080
 
 const handler = async (request: Request): Promise<Response> => {
   try {
-    if (request.method == 'POST') {
-      const input = await request.text()
-      const result = await main(JSON.parse(input))
+    // if (request.method == 'POST') {
+    //   const input = await request.text()
+    //   const result = await main(JSON.parse(input))
+    //   const output = JSON.stringify(result)
+    //   return new Response(output)
+    // }
+    if (request.method === 'GET') {
+      const url = new URL(request.url)
+      const params = url.searchParams
+      const inputObj = Object.fromEntries(params)
+      const result = await main(inputObj)
       const output = JSON.stringify(result)
-      console.log(input, output)
       return new Response(output)
     }
   } catch (error) {
