@@ -18,7 +18,7 @@ const search = async (input: SearchInput): Promise<SearchOutput[]> => {
   console.log('search done')
   const links = parseLinks(searchHtml)
   return Promise.all(
-    links.map<Promise<SearchOutput>>(
+    links.slice(1, input.pages ?? links.length).map<Promise<SearchOutput>>(
       async link => {
         const html = await loadHtml(link)
         return {

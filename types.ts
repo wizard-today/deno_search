@@ -1,6 +1,7 @@
 export type SearchInput = {
   search: string
   in: 'google'
+  pages?: number
   location?: string
   lang?: string
 }
@@ -15,6 +16,13 @@ export type SearchOutput = {
 }
 
 export type Output = (SearchOutput[] | string | null)[]
+
+const isValidPagesProperty = (pages: number | undefined) => (
+  typeof pages === 'number'
+  && Number.isInteger(pages)
+  && pages >= 1
+  && pages <= 10
+)
 
 export const validateInput = (input: unknown): Input => {
   if (
@@ -33,12 +41,16 @@ export const validateInput = (input: unknown): Input => {
           && typeof (item as SearchInput).search === 'string'
           && (item as SearchInput).in === 'google'
           && (
-            typeof (item as SearchInput).location === 'string'
-            || typeof (item as SearchInput).location === 'undefined'
+            typeof (item as SearchInput).pages === 'undefined'
+            || isValidPagesProperty((item as SearchInput).pages)
           )
           && (
-            typeof (item as SearchInput).lang === 'string'
-            || typeof (item as SearchInput).lang === 'undefined'
+            typeof (item as SearchInput).location === 'undefined'
+            || typeof (item as SearchInput).location === 'string'
+          )
+          && (
+            typeof (item as SearchInput).lang === 'undefined'
+            || typeof (item as SearchInput).lang === 'string'
           )
         )
       )
