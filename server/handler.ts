@@ -5,7 +5,7 @@ export const handler = (actions: Actions) => async (request: Request): Promise<R
   try {
     if (request.method === 'GET') {
       const url = new URL(request.url)
-      const action = url.pathname
+      const action = url.pathname.slice(1)
       const input = Object.fromEntries(url.searchParams)
 
       const run_action = actions[action]
