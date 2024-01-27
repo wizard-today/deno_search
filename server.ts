@@ -10,13 +10,38 @@ const handler = async (request: Request): Promise<Response> => {
     //   const output = JSON.stringify(result)
     //   return new Response(output)
     // }
+    // if (request.method === 'GET') {
+    //   const url = new URL(request.url)
+    //   const params = url.searchParams
+    //   const inputObj = Object.fromEntries(params)
+    //   const result = await main(inputObj)
+    //   const output = JSON.stringify(result)
+    //   return new Response(output)
+    // }
     if (request.method === 'GET') {
       const url = new URL(request.url)
       const params = url.searchParams
       const inputObj = Object.fromEntries(params)
-      const result = await main(inputObj)
-      const output = JSON.stringify(result)
-      return new Response(output)
+
+      // Создаем новый ReadableStream
+      const stream = new ReadableStream({
+        async start(controller) {
+          // Заголовки могут быть отправлены здесь
+          controller.enqueue(new TextEncoder().encode('[{"status": "Search completed successfully"},'))
+
+          // Обработка основного содержимого
+          const result = await main(inputObj)
+          const output = JSON.stringify(result).slice(1)
+
+          // Отправка основного содержимого
+          controller.enqueue(new TextEncoder().encode(output))
+          controller.close()
+        }
+      })
+
+      return new Response(stream, {
+        headers: { 'Content-Type': 'application/json' }
+      })
     }
   } catch (error) {
     console.error(error)
