@@ -1,4 +1,4 @@
-# Search engine for GPTs
+# Deno search engine for GPTs
 
 ```yml
 openapi: 3.0.0
