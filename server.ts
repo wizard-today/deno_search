@@ -23,23 +23,10 @@ const handler = async (request: Request): Promise<Response> => {
       const params = url.searchParams
       const inputObj = Object.fromEntries(params)
 
-      // Создаем новый ReadableStream
-      const stream = new ReadableStream({
-        async start(controller) {
-          // Заголовки могут быть отправлены здесь
-          controller.enqueue(new TextEncoder().encode('[{"status": "Search completed successfully"},'))
+      const result = await main(url.pathname, inputObj)
+      const output = JSON.stringify(result)
 
-          // Обработка основного содержимого
-          const result = await main(inputObj)
-          const output = JSON.stringify(result).slice(1)
-
-          // Отправка основного содержимого
-          controller.enqueue(new TextEncoder().encode(output))
-          controller.close()
-        }
-      })
-
-      return new Response(stream, {
+      return new Response(output, {
         headers: { 'Content-Type': 'application/json' }
       })
     }

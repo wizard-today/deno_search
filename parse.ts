@@ -1,18 +1,28 @@
 import cheerio from 'npm:cheerio'
-import { Page } from './types.ts'
+import { BrowseOutput, SearchPage } from './types.ts'
 
-export const parseGoogleSearchLinks = (html: string): string[] => {
+export const parseGoogleSearchLinks = (html: string): SearchPage[] => {
   const $ = cheerio.load(html)
-  const links: string[] = []
 
-  $('.yuRUbf a').each((i, el) => {
-    links[i] = $(el).attr('href')
+  const pages: Partial<SearchPage>[] = []
+
+  $(".g .yuRUbf h3").each((i, el) => {
+    pages[i] = {}
+    pages[i].title = $(el).text()
   })
 
-  return links
+  $('.yuRUbf a').each((i, el) => {
+    pages[i].link = $(el).attr('href')
+  })
+
+  $(".g .VwiC3b ").each((i, el) => {
+    pages[i].snippet = $(el).text()
+  })
+
+  return pages as SearchPage[]
 }
 
-export const parsePageContent = (html: string): Omit<Page, 'link'> => {
+export const parsePageContent = (html: string): BrowseOutput => {
   const $ = cheerio.load(html)
   $('body script').remove()
   $('body style').remove()

@@ -1,5 +1,5 @@
 import { parsePageContent, parseGoogleSearchLinks } from './parse.ts'
-import { Input, Output, Page } from './types.ts'
+import { BrowseInput, BrowseOutput, SearchInput, SearchOutput } from './types.ts'
 
 const loadHtml = async (link: string): Promise<string> => {
   const response = await fetch(link, {
@@ -10,30 +10,30 @@ const loadHtml = async (link: string): Promise<string> => {
   return response.text()
 }
 
-const search = async (input: Input): Promise<Output> => {
+const browse = async (input: BrowseInput): Promise<BrowseOutput> => (
+  parsePageContent(
+    await loadHtml(input.link)
+  )
+)
+
+const search = async (input: SearchInput): Promise<SearchOutput> => {
   const q = encodeURIComponent(input.search)
   const location = encodeURIComponent(input.location ?? 'us')
   const lang = encodeURIComponent(input.lang ?? 'en')
   const searchHtml = await loadHtml(`https://www.google.com/search?q=${q}&gl=${location}&hl=${lang}`)
-  const links = parseGoogleSearchLinks(searchHtml)
-  return Promise.all(
-    links.slice(0, input.pages).map<Promise<Page>>(
-      async link => {
-        const html = await loadHtml(link)
-        const page = parsePageContent(html)
-        return {
-          link,
-          ...page
-        }
-      }
-    )
-  )
+  return parseGoogleSearchLinks(searchHtml)
 }
 
-export const main = async (request: Record<string, string>) => {
-  return search({
-    search: request['search'],
-    in: request['in'] as 'google',
-    pages: Number(request['pages']) || undefined
-  })
+export const main = async (action: string, request: Record<string, string>) => {
+  switch (action) {
+    case '/browse': return browse({
+      link: request['link'],
+    })
+    case '/search': return search({
+      search: request['search'],
+      in: request['in'] as SearchInput['in'],
+      pages: Number(request['pages']) || undefined,
+    })
+  }
+  return null
 }

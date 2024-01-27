@@ -1,4 +1,17 @@
-export type Input = {
+// /browse
+
+export type BrowseInput = {
+  link: string
+}
+
+export type BrowseOutput = {
+  title: string
+  content: string
+}
+
+// /search
+
+export type SearchInput = {
   search: string
   in: 'google'
   pages?: number
@@ -6,10 +19,10 @@ export type Input = {
   lang?: string
 }
 
-export type Page = {
-  link: string
+export type SearchPage = {
   title: string
-  content: string
+  link: string
+  snippet: string
 }
 
-export type Output = Page[]
+export type SearchOutput = SearchPage[]
