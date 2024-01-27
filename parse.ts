@@ -10,3 +10,10 @@ export const parseLinks = (html: string): string[] => {
 
   return links
 }
+
+export const parseContent = (html: string): string => {
+  const $ = cheerio.load(html)
+  $('body script').remove()
+  $('body style').remove()
+  return $('body').text().replace(/\s+/g, ' ')
+}

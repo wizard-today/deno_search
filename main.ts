@@ -1,4 +1,4 @@
-import { parseLinks } from './parse.ts'
+import { parseContent, parseLinks } from './parse.ts'
 import { validateInput, SearchInput, Output, SearchOutput } from './types.ts'
 
 const loadHtml = async (link: string): Promise<string> => {
@@ -22,7 +22,7 @@ const search = async (input: SearchInput): Promise<SearchOutput[]> => {
         const html = await loadHtml(link)
         return {
           link,
-          html,
+          html: parseContent(html),
         }
       }
     )
