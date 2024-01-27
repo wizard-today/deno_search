@@ -15,10 +15,9 @@ const search = async (input: SearchInput): Promise<SearchOutput[]> => {
   const location = encodeURIComponent(input.location ?? 'us')
   const lang = encodeURIComponent(input.lang ?? 'en')
   const searchHtml = await loadHtml(`https://www.google.com/search?q=${q}&gl=${location}&hl=${lang}`)
-  console.log('search done')
   const links = parseLinks(searchHtml)
   return Promise.all(
-    links.slice(1, input.pages ?? links.length).map<Promise<SearchOutput>>(
+    links.slice(0, input.pages).map<Promise<SearchOutput>>(
       async link => {
         const html = await loadHtml(link)
         return {

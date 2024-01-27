@@ -15,5 +15,5 @@ export const parseContent = (html: string): string => {
   const $ = cheerio.load(html)
   $('body script').remove()
   $('body style').remove()
-  return $('body').text().replace(/(\s+|\\n)/g, ' ')
+  return $('body').text().replace(/\s+/g, ' ')
 }
