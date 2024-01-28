@@ -19,9 +19,16 @@ const trimPageContent = (html: string): string => {
   $.remove('body script')
   $.remove('body style')
 
-  $.replace('img', img => {
-    const alt = img.attr('alt')
-    return alt ? `[${alt.trim()}]` : ''
+  $.replace('img', image => {
+    const title = image.attr('alt') ?? ''
+    const link = image.attr('src')
+    return `![${title}](${link})`
+  })
+
+  $.replace('a', a => {
+    const link = a.attr('href')
+    const title = a.text()
+    return `[${title}](${link})`
   })
 
   return $.element('body').replace(/\s+/g, ' ')

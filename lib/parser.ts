@@ -1,7 +1,7 @@
 import cheerio from 'npm:cheerio'
 
 export interface Element {
-  attr(name: string): string
+  attr(name: string): string | undefined
   text(): string
 }
 

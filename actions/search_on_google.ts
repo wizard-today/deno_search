@@ -27,7 +27,7 @@ const parseLinks = (html: string): Page[] => {
   const $ = new Parser(html)
 
   const titles = $.elements('.g .yuRUbf h3')
-  const links = $.elements('.yuRUbf a', link => link.attr('href'))
+  const links = $.elements('.yuRUbf a', link => link.attr('href') ?? '')
   const snippets = $.elements('.g .VwiC3b')
 
   return titles.map<Page>((title, i) => ({
