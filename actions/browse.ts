@@ -1,7 +1,7 @@
+import * as cheerio from 'cheerio'
 import { Action, GetRequestInput } from '../server/types.ts'
 import { fetchHtml } from '../lib/fetch_html.ts'
-import { Parser } from '../lib/parser.ts'
-import { cutToGPTsAcceptableLimits } from '../lib/gpt.ts'
+import { cutForLimit } from '../lib/gpt.ts'
 
 type Input = {
   link: string
@@ -14,32 +14,35 @@ const parseInput = (input: GetRequestInput): Input => ({
 })
 
 const trimPageContent = (html: string): string => {
-  const $ = new Parser(html)
+  const $ = cheerio.load(html)
 
-  $.remove('body script')
-  $.remove('body style')
+  // remove JS & CSS
+  $('body script, body style').remove()
 
-  $.replace('img', image => {
-    const title = image.attr('alt') ?? ''
-    const link = image.attr('src')
-    return `![${title}](${link})`
+  // images HTML -> MD
+  $('img').each((_, el) => {
+    const element = $(el)
+    const title = element.attr('alt') ?? ''
+    const link = element.attr('src')
+    element.replaceWith(`![${title}](${link})`)
   })
 
-  $.replace('a', a => {
-    const link = a.attr('href')
-    const title = a.text()
-    return `[${title}](${link})`
+  // links HTML -> MD
+  $('a').each((_, el) => {
+    const element = $(el)
+    const link = element.attr('href')
+    const title = element.text()
+    element.replaceWith(`[${title}](${link})`)
   })
 
-  return $.element('body').replace(/\s+/g, ' ')
+  // trim multiple whitespaces
+  return $('body').text().replace(/\s+/g, ' ')
 }
 
 export const browse: Action<string> = async input => {
   const { link, offset } = parseInput(input)
 
-  const content = trimPageContent(
-    await fetchHtml(link)
-  )
-
-  return cutToGPTsAcceptableLimits(content, { offset })
+  const html = await fetchHtml(link)
+  const textContent = trimPageContent(html)
+  return cutForLimit(textContent, { offset })
 }

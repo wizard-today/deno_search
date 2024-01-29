@@ -1,6 +1,6 @@
+import * as cheerio from 'cheerio'
 import { Action, GetRequestInput } from '../server/types.ts'
 import { fetchHtml } from '../lib/fetch_html.ts'
-import { Parser } from '../lib/parser.ts'
 
 type Input = {
   query: string
@@ -23,18 +23,19 @@ const parseInput = (input: GetRequestInput): Input => ({
   lang: input['lang'],
 })
 
-const parseLinks = (html: string): Page[] => {
-  const $ = new Parser(html)
+const parseLinks = (html: string) => {
+  const $ = cheerio.load(html)
+  const pages: Page[] = []
 
-  const titles = $.elements('.g .yuRUbf h3')
-  const links = $.elements('.yuRUbf a', link => link.attr('href') ?? '')
-  const snippets = $.elements('.g .VwiC3b')
+  $('.g .yuRUbf').each((_, element) => {
+    const title = $(element).find('h3').text()
+    const link = $(element).find('a').attr('href') ?? ''
+    const snippet = $(element).next('.VwiC3b').text()
 
-  return titles.map<Page>((title, i) => ({
-    title,
-    link: links[i],
-    snippet: snippets[i],
-  }))
+    pages.push({ title, link, snippet })
+  })
+
+  return pages
 }
 
 export const search_on_google: Action<Output> = async input => {

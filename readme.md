@@ -1,4 +1,4 @@
-# Deno search engine for GPTs
+# Node.js search engine for GPTs
 
 ```yml
 openapi: 3.0.0
@@ -7,7 +7,7 @@ info:
   description: API for browsing and searching web content
   version: 1.0.0
 servers:
-  - url: '' # Server domain
+  - url: # Server domain
     description: Internet entry point
 paths:
   /browse:
